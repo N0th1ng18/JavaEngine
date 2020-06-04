@@ -1,0 +1,16 @@
+#version 400
+
+in vec2 texCoords_V;
+
+uniform sampler2D texture;
+
+uniform float contrast = 0.1;
+vec4 colors;
+
+void main() {
+
+	colors = texture2D(texture, texCoords_V);
+	colors.rgb = (colors.rgb - 0.5) * (1.0 + contrast) + 0.5;
+	
+	gl_FragColor = colors;
+}

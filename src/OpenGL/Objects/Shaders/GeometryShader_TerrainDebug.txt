@@ -1,0 +1,33 @@
+#version 400
+
+layout(points) in;
+
+layout(line_strip, max_vertices = 2) out;
+
+
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 transformationMatrix;
+
+
+in vec3 vNormal[];
+in vec3 vTangent[];
+in vec3 vBitangent[];
+
+void main()
+{
+	mat4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * transformationMatrix;
+
+	float scale = 0.5;
+	
+    vec4 v0     = gl_in[0].gl_Position;
+    gl_Position = modelViewProjectionMatrix * v0;
+    EmitVertex();
+
+    vec4 v1     = v0 + vec4(vNormal[0] * scale, 0);
+    gl_Position = modelViewProjectionMatrix * v1;
+    EmitVertex();
+
+    EndPrimitive();
+	
+}

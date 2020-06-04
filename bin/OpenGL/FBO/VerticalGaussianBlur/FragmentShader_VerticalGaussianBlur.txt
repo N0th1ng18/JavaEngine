@@ -1,0 +1,33 @@
+#version 400
+
+in vec2 texCoords_V;
+uniform sampler2D texture;
+
+
+in vec2 blurTextureCoords[19];
+
+void main() {
+	
+	vec4 colour = vec4(0.0);
+	colour += texture2D(texture, blurTextureCoords[0]) * 0.008162;
+	colour += texture2D(texture, blurTextureCoords[1]) * 0.013846;
+	colour += texture2D(texture, blurTextureCoords[2]) * 0.022072;
+	colour += texture2D(texture, blurTextureCoords[3]) * 0.033065;
+	colour += texture2D(texture, blurTextureCoords[4]) * 0.046546;
+	colour += texture2D(texture, blurTextureCoords[5]) * 0.061573;
+	colour += texture2D(texture, blurTextureCoords[6]) * 0.076542;
+	colour += texture2D(texture, blurTextureCoords[7]) * 0.089414;
+	colour += texture2D(texture, blurTextureCoords[8]) * 0.098154;
+	colour += texture2D(texture, blurTextureCoords[9]) * 0.101253;
+	colour += texture2D(texture, blurTextureCoords[10]) * 0.098154;
+	colour += texture2D(texture, blurTextureCoords[11]) * 0.089414;
+	colour += texture2D(texture, blurTextureCoords[12]) * 0.076542;
+	colour += texture2D(texture, blurTextureCoords[13]) * 0.061573;
+	colour += texture2D(texture, blurTextureCoords[14]) * 0.046546;
+	colour += texture2D(texture, blurTextureCoords[15]) * 0.033065;
+	colour += texture2D(texture, blurTextureCoords[16]) * 0.022072;
+	colour += texture2D(texture, blurTextureCoords[17]) * 0.013846;
+	colour += texture2D(texture, blurTextureCoords[18]) * 0.008162;
+	
+	gl_FragColor = colour;
+}

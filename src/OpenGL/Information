@@ -1,0 +1,88 @@
+
+--------------------------------------------------------------------
+						Drawing Techniques
+	
+	1) DrawArrays() vs. DrawElements
+		-DrawArrays 
+			- Verticies
+			
+			   +Y
+				|
+				|
+				|_______+X
+				
+			- TextureCoords
+			
+			     ________+X
+			    |
+			    |
+			    |
+			   +Y
+
+		-DrawElements
+			- removes the need to duplicate verticies by using indices
+	
+
+--------------------------------------------------------------------
+						Objects
+						
+	1) Model:
+			- VAO (MeshStructure) [Model]
+				- VBO (vertices, texCoords, tangents, bitangents, normals, indices) [VAO]
+					- (0, 3, vertices)
+					- (1, 2, texCoords)
+					- (2, 3, tangents)
+					- (3, 3, bitangents)
+					- (4, 3, normals)
+					- (5, 3, indices)
+					
+	2) Texture:
+			- Texture()
+				- LoadTexture(path) [OpenGL]
+				- TextureCharacteristics
+	
+	3) Shader:
+			- Shader(vertexShaderPath, FragmentShaderPath) [Shader]
+				- glBindAttribLocation
+					- (0, "position")
+					- (1, "texCoord")
+					- (2, "tanget")
+					- (3, "bitangent")
+					- (4, "normal")
+					
+					- // (5, "indices") //in render drawElements(GL_TRIANGLES, vao.indicesLength, GL_UNSIGNED_INT, 0L);
+					
+	4) Update:
+			-Physics
+			-Integration Method
+			
+	5) Render:
+			- Bind Shader
+			- Bind VAO (Model Info)
+			- Bind Textures
+			-
+			- Interpolate
+			-
+			- scale, rotate, translate
+			- create tranformation matrix
+			-
+			- Uniforms To GPU
+				- TextureCharacteristics
+				- LightCharacteristitcs
+				- projectionMatrix
+				- viewMatrix
+				- transformationMatrix
+				- TextureAtlas
+				- Lighting
+				- Fog
+			-
+			- DrawElements(GL_TRIANGLES, vao.indicesLength, GL_UNSIGNED_INT, 0L);
+			-
+			- unBind Shader
+			- unBind VAO
+			- unBind Textures
+			
+			
+--------------------------------------------------------------------
+
+

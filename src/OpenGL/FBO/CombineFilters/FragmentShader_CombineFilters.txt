@@ -1,0 +1,15 @@
+#version 400
+
+in vec2 texCoords_V;
+
+uniform sampler2D texture;
+uniform sampler2D highlightTexture;
+
+void main() {
+	
+	vec4 color = texture2D(texture, texCoords_V);
+	vec4 highlightColor = texture2D(highlightTexture, texCoords_V);
+	
+	
+	gl_FragColor = color + highlightColor * 2.0f;
+}

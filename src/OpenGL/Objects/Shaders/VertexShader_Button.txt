@@ -1,0 +1,19 @@
+#version 400
+
+//Transformation Matrix of Verticies
+uniform mat4 transformationMatrix;
+
+uniform float screenWidth;
+uniform float screenHeight;
+
+in vec2 position;
+
+void main() {
+
+	float x = (2.0 * position.x) / screenWidth;
+	float y = (2.0 * position.y) / screenHeight;
+
+	/*Projection Matrix*/
+		gl_Position = transformationMatrix * vec4(x, y, 0.0, 1.0);
+	
+}

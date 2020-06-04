@@ -1,0 +1,36 @@
+#version 400
+
+uniform mat4 transformationMatrix;
+
+in vec3 position;
+in vec2 texCoord;
+in vec3 normal;
+in vec3 tangent;
+in vec3 bitangent;
+
+out vec3 vPosition;
+out vec2 vTexCoord;
+out vec3 vNormal;
+out vec3 vTangent;
+out vec3 vBitangent;
+
+uniform float test;
+
+void main() {
+	
+	vec3 position_World = (transformationMatrix * vec4(position.xyz, 1.0)).xyz;
+    
+    vec3 normal_World = normalize((transformationMatrix * vec4(normal.xyz, 0.0)).xyz);
+	vec3 tangent_World = normalize((transformationMatrix * vec4(tangent.xyz, 0.0)).xyz);
+	vec3 bitangent_World = normalize((transformationMatrix * vec4(bitangent.xyz, 0.0)).xyz);
+		
+    // Adjust texture tile
+	vec2 texCoord_Scaled = texCoord * 1.0;	
+	
+	vPosition = position_World;
+	vTexCoord = texCoord_Scaled;
+	vNormal = normal_World;
+	vTangent = tangent_World;
+	vBitangent = bitangent_World;
+	
+}

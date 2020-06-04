@@ -1,0 +1,22 @@
+#version 400
+
+in vec3 position;
+in vec3 normal;
+in vec3 tangent;
+in vec3 bitangent;
+
+out vec3 vNormal;
+out vec3 vTangent;
+out vec3 vBitangent;
+
+uniform float test;
+
+void main() {
+	
+	gl_Position = vec4(position, 1.0);
+	
+	vNormal = normalize(normal);
+	vTangent = normalize(tangent);
+	vBitangent = normalize(bitangent);
+	
+}

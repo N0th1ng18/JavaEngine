@@ -1,0 +1,19 @@
+#version 400
+
+//Transformation Matrix of Verticies
+uniform mat4 transformationMatrix;
+
+in vec2 position;
+in vec2 texCoord;
+
+out vec2 texCoord_V;
+
+void main() {
+
+	/*Projection Matrix*/
+		gl_Position = transformationMatrix * vec4(position, 0.0, 1.0);
+		
+	/*Send TexCoords to FragmentShader*/
+		texCoord_V = texCoord;
+	
+}

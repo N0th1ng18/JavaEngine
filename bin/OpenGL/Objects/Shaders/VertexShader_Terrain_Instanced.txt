@@ -1,0 +1,79 @@
+#version 400
+
+const float heightMapWidth = 1024.0;
+const float normalHeightOffset = 0.5;
+
+uniform mat4 transformationMatrix;
+uniform sampler2D heightMap;
+uniform float heightIntensity;
+uniform float numOfInstancesWide;
+
+in vec3 position;
+in vec2 texCoords;
+in vec3 offsets;
+
+out vec3 vPosition;
+out vec2 vPerInstanceTexCoords;
+out vec3 vNormals;
+out vec3 vTangent;
+out vec3 vBitangent;
+
+uniform float test;
+
+float getHeight(vec2 location){
+
+	return (2.0*texture(heightMap, location).x-1.0) * heightIntensity;
+}
+
+float sampleHeightMap(vec2 location){
+
+	return texture(heightMap, location).x;
+}
+
+void main() {
+	
+	vec3 positionWorld = (transformationMatrix * vec4(position.xyz, 1.0)).xyz;
+	
+	positionWorld += offsets;
+	
+	
+	//Split the Height Map into sections for each instance
+	vec2 perMapTexCoords = texCoords;
+	perMapTexCoords.x = (perMapTexCoords.x + (mod(gl_InstanceID, numOfInstancesWide)))/numOfInstancesWide; 
+	perMapTexCoords.y = (perMapTexCoords.y + (floor(gl_InstanceID / numOfInstancesWide)))/numOfInstancesWide; 
+	
+    positionWorld.y += getHeight(perMapTexCoords);
+    
+    //Use heightMap to calculate normals, tangents, bitangents
+	    vec3 normal;
+	    vec3 tangent;
+	    vec3 bitangent;
+	    float normalIntensity = (normalHeightOffset)/(numOfInstancesWide+1.0);
+		vec3 off = vec3(1.0/heightMapWidth, 1.0/heightMapWidth, 0.0);
+		float hL = sampleHeightMap( perMapTexCoords.xy - off.xz );
+		float hR = sampleHeightMap( perMapTexCoords.xy + off.xz );
+		float hD = sampleHeightMap( perMapTexCoords.xy - off.zy );
+		float hU = sampleHeightMap( perMapTexCoords.xy + off.zy );
+		
+		tangent.x = normalIntensity;
+		tangent.y = hR - hL;
+		tangent.z = 0.0;
+		tangent = normalize((transformationMatrix * vec4(tangent.xyz, 0.0)).xyz);
+		
+		bitangent.x = 0.0;
+		bitangent.y = hU - hD;
+		bitangent.z = normalIntensity;
+		bitangent = normalize((transformationMatrix * vec4(bitangent.xyz, 0.0)).xyz);
+		
+		normal = cross(bitangent, tangent);
+		normal = normalize((transformationMatrix * vec4(normal.xyz, 0.0)).xyz);
+		
+		
+	
+	vPosition = positionWorld;
+	vPerInstanceTexCoords = texCoords;
+	vNormals = normal;
+	vTangent = tangent;
+	vBitangent = bitangent;
+	
+}

@@ -1,0 +1,16 @@
+#version 400
+
+in vec2 texCoords_V;
+
+uniform sampler2D texture;
+uniform float brightness;
+
+void main() {
+	
+	vec4 color = texture2D(texture, texCoords_V);
+	
+	float bColor = (color.r * brightness) + (color.g * brightness) + (color.b * brightness);
+	
+	gl_FragColor = color * bColor;
+	
+}

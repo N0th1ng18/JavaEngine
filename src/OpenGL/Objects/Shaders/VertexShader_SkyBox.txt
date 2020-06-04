@@ -1,0 +1,26 @@
+#version 400
+
+//Projection Matrix
+uniform mat4 projectionMatrix;
+
+//View Matrix and TransformationViewMatrix
+uniform mat4 viewMatrix;
+
+//Transformation Matrix of Verticies
+uniform mat4 transformationMatrix;
+
+in vec3 position;
+
+out vec3 texCoords_V;
+
+
+void main() {
+
+	/*View Matrix for Sky Box:  (RZ * RY * RX * S) */
+
+		gl_Position = projectionMatrix * viewMatrix * transformationMatrix * vec4(position, 1.0);
+	
+	/*Send TexCoords to FragmentShader*/
+		texCoords_V = normalize(position);
+	
+}

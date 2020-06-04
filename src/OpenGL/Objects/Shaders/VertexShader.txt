@@ -1,0 +1,74 @@
+#version 400
+
+//Projection Matrix
+uniform mat4 projectionMatrix;
+
+//View Matrix and TransformationViewMatrix
+uniform mat4 viewMatrix;
+
+//Transformation Matrix of Verticies
+uniform mat4 transformationMatrix;
+
+//Texture
+uniform float atlasRows;
+uniform vec2 atlasOffsets;
+
+//Lighting
+uniform vec3 lightPosition[20];
+uniform int numLights;
+
+//Fog
+const float density = 0.0001; //Distance when fog starts
+const float gradient = 2.0;	//Rate of Change
+
+in vec3 position;
+in vec2 texCoord;
+in vec3 normal;
+in vec3 tangent;
+in vec3 bitangent;
+
+
+out vec2 texCoord_V;
+out vec3 toLightVector[20];
+out vec3 toCameraVector;
+out float visibility;
+
+void main() {
+
+	/*Model View Matrix*/
+		mat4 modelViewMatrix = viewMatrix * transformationMatrix;
+	
+	/*PositionRelativeToCam*/
+		vec4 positionRelativeToCamera = modelViewMatrix * vec4(position,1.0);
+		
+	/*Projection Matrix*/
+		gl_Position = projectionMatrix * positionRelativeToCamera;
+		
+	/*Send TexCoords to FragmentShader*/
+		texCoord_V = (texCoord/atlasRows) + atlasOffsets;
+		
+	/*Calculate toTangentSpace Matrix & toLightVector & toCameraVector*/
+	
+		vec3 norm = normalize((modelViewMatrix * vec4(normal,0.0)).xyz);
+		vec3 tang = normalize((modelViewMatrix * vec4(tangent,0.0)).xyz);
+		vec3 bitang =  normalize((modelViewMatrix * vec4(bitangent,0.0)).xyz);
+		
+		mat3 toTangentSpace = mat3(
+			tang.x, bitang.x, norm.x,
+			tang.y, bitang.y, norm.y,
+			tang.z, bitang.z, norm.z
+		);
+		
+		for(int i=0; i < numLights;i++){
+			vec3 lightPositionEyeSpace = (viewMatrix * vec4(lightPosition[i], 1.0)).xyz;
+			
+			toLightVector[i] = toTangentSpace * (lightPositionEyeSpace - positionRelativeToCamera.xyz);
+		}
+		toCameraVector = toTangentSpace * (-positionRelativeToCamera.xyz);
+	
+	/*Fog*/
+		float distance = length(positionRelativeToCamera.xyz);
+		visibility = exp(-pow((distance * density), gradient));
+		visibility = clamp(visibility, 0.0, 1.0);
+	
+}

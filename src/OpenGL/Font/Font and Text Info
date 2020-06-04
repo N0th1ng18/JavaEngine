@@ -1,0 +1,75 @@
+
+							Text				
+	
+	Font
+		- Holds Font Type and All Text Characteristics(color, outline, Alignment)
+							
+	Text2D Dynamic
+		- One Font per Text2D Dynamic
+		- Connects texts with font including all characteristics
+		- Updates VBO when any of the texts change.
+		- Has multiple stringToVAOInfo calls.
+		-> ArrayList<Text> texts
+			-String text
+			-String prevText
+			-Vector2D position
+			-Vector2D prevPosition
+	
+	Text2D Static 
+		- One Font per Text2D Static
+		- Connects texts with font including all text characteristics
+		- Does not update VBO
+		- Has one stringToVAOInfo Call at beginning.
+	
+	
+	
+
+				
+	1) Create New Font
+		-MAX_STRING_LENGTH 			-> Max String Length Per Text2D Object
+		-location					-> Font File Location
+		-size						-> Text Size
+		-lineHeight					-> Distance th Pointer changes on the Y axis for next line
+		-desiredCharacterPadding	-> How close each character is
+		-desiredTexturePadding		-> how much extra quad space around the character
+	2) Model
+		-font.stringToVAOInfo("")
+			-Creates Verticies and Texture Coordinates from string for quads.
+	3) Texture
+		-Path to Font texture file.
+	4) Shader
+		-Bind position
+		-Bind texCoord
+	5) Update
+		-Update Position
+		-Update VBOs()
+			-If Text has changed, recalculate Verticies and Texture Coordinates for new text
+				and update both the verticies VBO and the texCoords VBO.
+	6) Render
+		- Bind Shader
+		- Bind VAO (Model Info)
+		- Bind Textures
+		-
+		- Interpolate
+		-
+		- scale, rotate, translate
+		- create tranformation matrix
+		-
+		- Uniforms To GPU
+			-transformationMatrix
+			-textCharacteristics
+		-
+		- OpenGL.enableBlend();
+		- OpenGL.disableDepthTest();
+		
+		- glDrawArrays(GL_TRIANGLES, 0, vao.vertexCount);
+		
+		- OpenGL.disableBlend();
+		- OpenGL.enableDepthTest();
+
+
+
+
+
+
+

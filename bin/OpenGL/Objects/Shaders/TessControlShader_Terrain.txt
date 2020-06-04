@@ -1,0 +1,154 @@
+#version 400
+
+
+layout (vertices = 1) out;
+
+uniform vec3 cameraPos;
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform sampler2D displacementMap;
+uniform float displacementIntensity;
+
+uniform float test;
+
+const float screenHeight = 1080.0;
+const float pixelsPerEdge = 50.0;
+
+struct OutputPatch
+{
+    vec3 WorldPos_B030;
+    vec3 WorldPos_B021;
+    vec3 WorldPos_B012;
+    vec3 WorldPos_B003;
+    vec3 WorldPos_B102;
+    vec3 WorldPos_B201;
+    vec3 WorldPos_B300;
+    vec3 WorldPos_B210;
+    vec3 WorldPos_B120;
+    vec3 WorldPos_B111;
+    vec2 TexCoord[3];
+    vec3 Normal[3];
+    vec3 Tangent[3];
+    vec3 Bitangent[3];
+    float MipLevels[3];
+    
+};
+
+in vec3 vPosition[];
+in vec2 vTexCoord[];
+in vec3 vNormal[];
+in vec3 vTangent[];
+in vec3 vBitangent[];
+
+out patch OutputPatch oPatch;
+
+
+float GetTessLevel(vec3 v0, vec3 v1)
+{
+	
+	float diameter = abs(distance(v0, v1));
+	vec3 vMidPoint = (v0 + v1) / 2.0;
+	vec4 posClip = projectionMatrix * viewMatrix * vec4(vMidPoint, 1.0);
+	float diameter2 = abs(diameter * projectionMatrix[1][1] / posClip.w);
+	
+	
+	//float edgesPerScreenHeight = screenHeight / pixelsPerEdge;
+	float edgesPerScreenHeight = screenHeight / test;
+	
+	float tessLevel = max(1, edgesPerScreenHeight * diameter2);
+	//float tessLevel = max(1, edgesPerScreenHeight * diameter2 * (diameter2 * 5.0));
+	
+	return clamp(tessLevel, 1.0, 64.0);
+}
+
+vec3 ProjectToPlane(vec3 Point, vec3 PlanePoint, vec3 PlaneNormal)
+{
+    vec3 v = Point - PlanePoint;
+    float Len = dot(v, PlaneNormal);
+    vec3 d = Len * PlaneNormal;
+    return (Point - d);
+}
+
+void CalcPositions()
+{
+    // The original vertices stay the same
+    oPatch.WorldPos_B030 = vPosition[0];
+    oPatch.WorldPos_B003 = vPosition[1];
+    oPatch.WorldPos_B300 = vPosition[2];
+
+    // Edges are named according to the opposing vertex
+    vec3 EdgeB300 = oPatch.WorldPos_B003 - oPatch.WorldPos_B030;
+    vec3 EdgeB030 = oPatch.WorldPos_B300 - oPatch.WorldPos_B003;
+    vec3 EdgeB003 = oPatch.WorldPos_B030 - oPatch.WorldPos_B300;
+
+    // Generate two midpoints on each edge
+    oPatch.WorldPos_B021 = oPatch.WorldPos_B030 + EdgeB300 / 3.0;
+    oPatch.WorldPos_B012 = oPatch.WorldPos_B030 + EdgeB300 * 2.0 / 3.0;
+    oPatch.WorldPos_B102 = oPatch.WorldPos_B003 + EdgeB030 / 3.0;
+    oPatch.WorldPos_B201 = oPatch.WorldPos_B003 + EdgeB030 * 2.0 / 3.0;
+    oPatch.WorldPos_B210 = oPatch.WorldPos_B300 + EdgeB003 / 3.0;
+    oPatch.WorldPos_B120 = oPatch.WorldPos_B300 + EdgeB003 * 2.0 / 3.0;
+
+    // Project each midpoint on the plane defined by the nearest vertex and its normal
+    oPatch.WorldPos_B021 = ProjectToPlane(oPatch.WorldPos_B021, oPatch.WorldPos_B030, oPatch.Normal[0]);
+    oPatch.WorldPos_B012 = ProjectToPlane(oPatch.WorldPos_B012, oPatch.WorldPos_B003, oPatch.Normal[1]);
+    oPatch.WorldPos_B102 = ProjectToPlane(oPatch.WorldPos_B102, oPatch.WorldPos_B003, oPatch.Normal[1]);
+    oPatch.WorldPos_B201 = ProjectToPlane(oPatch.WorldPos_B201, oPatch.WorldPos_B300, oPatch.Normal[2]);
+    oPatch.WorldPos_B210 = ProjectToPlane(oPatch.WorldPos_B210, oPatch.WorldPos_B300, oPatch.Normal[2]);
+    oPatch.WorldPos_B120 = ProjectToPlane(oPatch.WorldPos_B120, oPatch.WorldPos_B030, oPatch.Normal[0]);
+
+    // Handle the center
+    vec3 Center = (oPatch.WorldPos_B003 + oPatch.WorldPos_B030 + oPatch.WorldPos_B300) / 3.0;
+    oPatch.WorldPos_B111 = (oPatch.WorldPos_B021 + oPatch.WorldPos_B012 + oPatch.WorldPos_B102 +
+                          oPatch.WorldPos_B201 + oPatch.WorldPos_B210 + oPatch.WorldPos_B120) / 6.0;
+    oPatch.WorldPos_B111 += (oPatch.WorldPos_B111 - Center) / 2.0;
+}
+
+float setMipLevels(vec2 t0, vec2 t1, float tessLevel, vec2 disp_Width_Height)
+{
+	float L = length((t0 - t1) * disp_Width_Height);
+	float T = tessLevel;
+	
+	return (log2(L/T) + 1.0);
+}
+
+void main() {
+	
+	for (int i = 0 ; i < 3 ; i++) {
+       oPatch.TexCoord[i] = vTexCoord[i];
+       oPatch.Normal[i] = vNormal[i];
+       oPatch.Tangent[i] = vTangent[i];
+       oPatch.Bitangent[i] = vBitangent[i];
+    }
+	
+	CalcPositions();
+	
+	if(gl_InvocationID == 0){
+	
+		gl_TessLevelOuter[0] = GetTessLevel(vPosition[1], vPosition[2]);	//1 to 2
+		gl_TessLevelOuter[1] = GetTessLevel(vPosition[2], vPosition[0]);	//2 to 0
+		gl_TessLevelOuter[2] = GetTessLevel(vPosition[0], vPosition[1]);	//0 to 1
+		gl_TessLevelInner[0] = gl_TessLevelOuter[0];
+		
+		
+		
+		//Mip Levels
+		//vec2 disp_Width_Height = textureSize(displacementMap, 1);
+		vec2 disp_Width_Height = vec2(1024, 1024);
+		
+		oPatch.MipLevels[0] = setMipLevels(vTexCoord[1], vTexCoord[2], gl_TessLevelOuter[0], disp_Width_Height);
+		oPatch.MipLevels[1] = setMipLevels(vTexCoord[2], vTexCoord[0], gl_TessLevelOuter[1], disp_Width_Height);
+		oPatch.MipLevels[2] = setMipLevels(vTexCoord[0], vTexCoord[1], gl_TessLevelOuter[2], disp_Width_Height);
+		
+	}
+	
+}
+
+//Barycentric Coordinates
+//http://ogldev.atspace.co.uk/www/tutorial31/tutorial31.html
+
+//TessLevel
+//https://developer.nvidia.com/content/dynamic-hardware-tessellation-basics
+
+//Mip Levels
+//https://sebastiansylvan.wordpress.com/2010/04/18/the-problem-with-tessellation-in-directx-11/
