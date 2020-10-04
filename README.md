@@ -1,6 +1,5 @@
 # JavaEngine
 Experimental Opengl Projet using LWJGL
-Supports
 * Terrain Tessellation supporting instancing using TessControl & TessEval Shaders
 * Mutliple Cameras
 * SkyBoxes
