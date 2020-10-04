@@ -6,6 +6,7 @@ Experimental Opengl Projet using LWJGL
 * Distance Field Text
 * GUI Buttons
 * Phong-Lighting
+* Normal Mapping
 * Custom .OBJ Mesh Loader supporting tangent space
 * Fixed Timestep / Interpolation
 
