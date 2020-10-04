@@ -13,4 +13,4 @@ Supports
 ![texture](https://user-images.githubusercontent.com/48923561/95020074-88e67900-062e-11eb-87d5-1e4bcd19c505.png)
 
 Resources:
-Thin Matrix (YouTube) - https://www.youtube.com/channel/UCUkRj4qoT1bsWpE_C8lZYoQ
+* Thin Matrix (YouTube) - https://www.youtube.com/channel/UCUkRj4qoT1bsWpE_C8lZYoQ
